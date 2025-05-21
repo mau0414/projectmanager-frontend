@@ -14,7 +14,11 @@ function Home() {
   async function login() {
 
     console.log(nameRef);
-    // api.post("/login");
+    await api.post("/login", {
+      name: nameRef.current.value()
+    });
+
+    // chamar proxima pagina
   }
 
   return (

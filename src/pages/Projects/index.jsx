@@ -15,6 +15,12 @@ function Home() {
 
     const [projects, setProjects] = useState([])
 
+    async function deleteProject(id) {
+        // await api.delete(`/projects/${id}`);
+
+        // chamar carregamento aqui
+    }
+
     useEffect(() => {
 
         setProjects([{
@@ -38,8 +44,8 @@ function Home() {
                             <p>Data de início: {project.startDate}</p>
                             <p>Data de fim: {project.endDate}</p>
                         </div>
-                        <button>
-                            <img src={a} />
+                        <button onClick={() => deleteProject(project.id)}>
+                            <img src={Trash} />
                         </button>
                         <button>
                             <img src={a} />
