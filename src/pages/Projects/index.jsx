@@ -12,8 +12,17 @@ import api from '../../services/api'
 function Home() {
 
     const a = 1;
+    
+    const [projects, setProjects] = useState([]);
 
-    const [projects, setProjects] = useState([])
+    async function getProjects() {
+        try {
+            // const response = await api.get("/projects");
+            setProjects(response.data);
+        } catch(e) {
+
+        }
+    }
 
     async function deleteProject(id) {
         // await api.delete(`/projects/${id}`);
@@ -23,11 +32,12 @@ function Home() {
 
     useEffect(() => {
 
-        setProjects([{
-            name: "mauricio",
-            startDate: "a",
-            endDate: "b"
-        }])
+        getProjects();
+        // setProjects([{
+        //     name: "mauricio",
+        //     startDate: "a",
+        //     endDate: "b"
+        // }])
 
     }, [])
 

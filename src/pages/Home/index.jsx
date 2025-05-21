@@ -1,24 +1,31 @@
 import './style.css'
 import api from '../../services/api'
 import { useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext';
 
 function Home() {
 
+  const navigation = useNavigate();
+  const { login } = useAuth();
+
   const nameRef = useRef();
 
-  async function exemplo() {
+  async function handleLogin() {
 
-    const a = await api.get("/")
-  }
+    try {
 
-  async function login() {
+      const response = await api.post("/login", {
+        name: nameRef.current.value()
+      });
 
-    console.log(nameRef);
-    await api.post("/login", {
-      name: nameRef.current.value()
-    });
+      login(response.data.token);
+      navigation('/projects');
 
-    // chamar proxima pagina
+    } catch(e) {
+
+    }
+
   }
 
   return (
@@ -27,7 +34,7 @@ function Home() {
         <form>
           <h1>Faça login</h1>
           <input name='name' type='text' ref={nameRef}/>
-          <button type='button' onClick={login}>Entrar</button>
+          <button type='button' onClick={handleLogin}>Entrar</button>
         </form>
         <button>
           
