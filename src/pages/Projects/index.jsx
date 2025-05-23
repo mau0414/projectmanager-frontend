@@ -27,7 +27,7 @@ function Home() {
     async function deleteProject(id) {
         // await api.delete(`/projects/${id}`);
 
-        // chamar carregamento aqui
+        getProjects();
     }
 
     useEffect(() => {

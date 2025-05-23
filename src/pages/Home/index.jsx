@@ -15,15 +15,15 @@ function Home() {
 
     try {
 
-      const response = await api.post("/login", {
-        name: nameRef.current.value()
+      const response = await api.post("/auth/login", {
+        username: nameRef.current.value
       });
 
       login(response.data.token);
       navigation('/projects');
 
     } catch(e) {
-
+      console.log(e)
     }
 
   }
