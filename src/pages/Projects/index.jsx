@@ -24,23 +24,34 @@ function Home() {
     const descriptionRef = useRef();
 
     const [projects, setProjects] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [projectToEdit, setProjectToEdit] = useState(null);
 
     function handleExit() {
         logout();
         navigation("/");
     }
 
-    function handleOpenModal() {
-        setIsModalOpen(true);
+    function handleOpenCreateModal() {
+        setIsCreateModalOpen(true);
     }
 
-    function handleCloseModal() {
-        setIsModalOpen(false);
+    function handleCloseCreateModal() {
+        setIsCreateModalOpen(false);
+    }
+
+    function handleOpenEditModal(project) {
+        setIsEditModalOpen(true);
+        setProjectToEdit(project);
+    }
+
+    function handleCloseEditModal() {
+        setIsEditModalOpen(false);
+        setProjectToEdit(null);
     }
 
     async function handleCreate() {
-
 
         try {
 
@@ -50,11 +61,9 @@ function Home() {
                 endDate: endDateRef.current.value,
                 description: descriptionRef.current.value
             })
-
-            console.log("recebeu resposta vazia e deu erro ", response.data)
             
             setProjects(response.data.projects);
-            setIsModalOpen(false);
+            setIsCreateModalOpen(false);
 
         } catch(e) {
             console.log(e);
@@ -62,13 +71,45 @@ function Home() {
 
     }
 
+    async function handleDelete(id) {
+
+        try {
+            const response = await api.delete(`/projects/${id}`);
+            setProjects(response.data.projects);
+        } catch(e) {
+            console.log(e);
+        }
+
+    }
+
+    async function handleEdit() {
+
+        const id = projectToEdit.id;
+
+        try {
+            const response = await api.put(`/projects/${id}`, {
+                title: titleRef.current.value,
+                startDate: startDateRef.current.value,
+                endDate: endDateRef.current.value,
+                description: descriptionRef.current.value
+            });
+            setProjects(response.data.projects);
+            handleCloseEditModal();
+        } catch(e) {
+            console.log(e);
+        }
+
+    }
+
+    function handleOpenProject(id) {
+        navigation(`/projects/${id}`);
+    }
+
 
 
     async function getProjects() {
         try {
-            console.log("get!")
             const response = await api.get("/projects");
-            console.log("repsonse = ", response.data.projects)
             setProjects(response.data.projects);
         } catch (e) {
             console.log(e);
@@ -76,22 +117,22 @@ function Home() {
         }
     }
 
-    async function deleteProject(id) {
-        // await api.delete(`/projects/${id}`);
-
-        getProjects();
-    }
-
     useEffect(() => {
 
         getProjects();
-        // setProjects([{
-        //     name: "mauricio",
-        //     startDate: "a",
-        //     endDate: "b"
-        // }])
 
     }, [])
+
+    useEffect(() => {
+
+        if (projectToEdit) {
+            titleRef.current.value = projectToEdit.title || '';
+            startDateRef.current.value = projectToEdit.startDate || '';
+            endDateRef.current.value = projectToEdit.endDate || '';
+            descriptionRef.current.value = projectToEdit.description || '';
+        }
+
+    }, [projectToEdit])
 
     return (
 
@@ -99,26 +140,26 @@ function Home() {
         <>
             <div className='container'>
                 <div className="actions">
-                    <button onClick={handleOpenModal}>Criar projeto</button>
+                    <button onClick={handleOpenCreateModal}>Criar projeto</button>
                     <button onClick={handleExit}>Sair</button>
                 </div>
 
                 {projects.map(project => (
                     <div key={project.id} className="project">
                         <div className="project-info">
-                            <p>Nome: {project.title}</p>
-                            <p>Data de início: {project.startDate}</p>
-                            <p>Data de fim: {project.endDate}</p>
-                            <p>Descrição: {project.description}</p>
+                            <h2>{project.title}</h2>
+                            <p><strong>Data de início:</strong> {project.startDate}</p>
+                            <p><strong>Data de fim:</strong> {project.endDate}</p>
+                            <p><strong>Descrição:</strong> {project.description}</p>
                         </div>
                         <div className="project-buttons">
-                            <button onClick={() => deleteProject(project.id)}>
+                            <button onClick={() => handleDelete(project.id)}>
                                 <img src={Trash} alt="Excluir" />
                             </button>
-                            <button>
+                            <button onClick={() => handleOpenEditModal(project)}>
                                 <img src={Edit} alt="Editar" />
                             </button>
-                            <button>
+                            <button onClick={() => handleOpenProject(project.id)}>
                                 <img src={Open} alt="Abrir" />
                             </button>
                         </div>
@@ -126,7 +167,7 @@ function Home() {
                 ))}
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+            <Modal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal}>
                 <h2>Criar novo projeto</h2>
                 <h4>Título</h4>
                 <input name='title' type='text' required ref={titleRef} />
@@ -137,6 +178,19 @@ function Home() {
                 <h4>Descrição</h4>
                 <textarea name='description' ref={descriptionRef}></textarea>
                 <button type='button' onClick={handleCreate}>Criar</button>
+            </Modal>
+
+            <Modal isOpen={isEditModalOpen} onClose={handleCloseEditModal}>
+                <h2>Edite seu projeto</h2>
+                <h4>Título</h4>
+                <input name='title' type='text' required ref={titleRef} />
+                <h4>Data de início</h4>
+                <input name='startDate' type='date' ref={startDateRef} />
+                <h4>Data de fim</h4>
+                <input name='endDate' type='date' ref={endDateRef} />
+                <h4>Descrição</h4>
+                <textarea name='description' ref={descriptionRef}></textarea>
+                <button type='button' onClick={handleEdit}>Editar</button>
             </Modal>
 
         </>
