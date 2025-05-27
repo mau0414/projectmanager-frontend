@@ -61,14 +61,20 @@ function TaskPage() {
     }
 
 
-    async function handleOpenEditModal(a) {
-        console.log("opa abriu!")
+    function handleOpenEditModal(task) {
+        setIsEditModalOpen(true);
+        setTaskToEdit(task);
+    }
+
+    function handleCloseEditModal() {
+        setIsEditModalOpen(false);
+        setTaskToEdit(null);
     }
 
     async function handleMoveTask(taskId, newStatus) {
 
         try {
-            const response = await api.put(`/tasks/${taskId}`, {
+            const response = await api.put(`/tasks/move/${taskId}`, {
                 newStatus: newStatus
             });
 
@@ -100,6 +106,25 @@ function TaskPage() {
 
     }
 
+    async function handleEdit() {
+
+        const id = taskToEdit.id;
+
+        try {
+            const response = await api.put(`/tasks/${id}`, {
+                title: titleRef.current.value,
+                startDate: startDateRef.current.value,
+                endDate: endDateRef.current.value,
+                description: descriptionRef.current.value
+            });
+            setTasks(response.data.tasks);
+            handleCloseEditModal();
+        } catch(e) {
+            console.log(e);
+        }
+
+    }
+
     function handleGoBack() {
         navigation("/projects");
     }
@@ -116,6 +141,17 @@ function TaskPage() {
 
     }, [])
 
+    useEffect(() => {
+
+        if (taskToEdit) {
+            titleRef.current.value = taskToEdit.title || '';
+            startDateRef.current.value = taskToEdit.startDate || '';
+            endDateRef.current.value = taskToEdit.endDate || '';
+            descriptionRef.current.value = taskToEdit.description || '';
+        }
+
+    }, [taskToEdit])
+
     const renderTasks = (status) => (
         tasks
             .filter(task => task.status === status)
@@ -131,7 +167,7 @@ function TaskPage() {
                         <button onClick={() => handleDelete(task.id)} className='delete-button'>
                             <img src={Trash} alt="Excluir" />
                         </button>
-                        <button className='edit-button'>
+                        <button onClick={() => handleOpenEditModal(task)} className='edit-button'>
                             <img src={Edit} alt="Editar" />
                         </button>
                         {status === 'TODO' && (
@@ -199,8 +235,8 @@ function TaskPage() {
                 <button type='button' onClick={handleCreate}>Criar</button>
             </Modal>
 
-            {/* <Modal isOpen={isEditModalOpen} onClose={handleCloseEditModal}>
-                <h2>Edite seu projeto</h2>
+            <Modal isOpen={isEditModalOpen} onClose={handleCloseEditModal}>
+                <h2>Edite sua tarefa</h2>
                 <h4>Título</h4>
                 <input name='title' type='text' required ref={titleRef} />
                 <h4>Data de início</h4>
@@ -210,7 +246,7 @@ function TaskPage() {
                 <h4>Descrição</h4>
                 <textarea name='description' ref={descriptionRef}></textarea>
                 <button type='button' onClick={handleEdit}>Editar</button>
-            </Modal> */}
+            </Modal>
 
         </>
     )
