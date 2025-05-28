@@ -24,7 +24,7 @@ function TaskPage() {
     const descriptionRef = useRef();
 
     async function getTasks() {
-        console.log("entrou aqui!")
+
         try {
 
             const response = await api.get("/tasks", {
@@ -32,7 +32,7 @@ function TaskPage() {
                     projectId: id
                 }
             });
-            console.log("aqui as tasks", response.data.tasks);
+
             setTasks(response.data.tasks);
 
         } catch (e) {

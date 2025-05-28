@@ -8,10 +8,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../../components/Modal';
 
-// apenas useState pode mudar coisas da tela
-// useState eh um hook, que eh uma ferramenta de suporte
-// pegar .data da resposta da api
-
 function Home() {
 
     const a = 1;
